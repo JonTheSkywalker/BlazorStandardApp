@@ -1,0 +1,21 @@
+﻿@page "/"
+@rendermode InteractiveServer
+
+<PageTitle>Home</PageTitle>
+
+<h1>Hello, world!</h1>
+
+<AuthorizeView>
+    <Authorized>
+        <p>
+            Je bent ingelogd als
+            <strong>@(context.User.FindFirst("username")?.Value
+                       ?? context.User.FindFirst("email")?.Value
+                       ?? "gebruiker")</strong>.
+        </p>
+        <p><a href="logout">Uitloggen</a></p>
+    </Authorized>
+    <NotAuthorized>
+        <p>Welkom bij je nieuwe app. <a href="login">Log in</a> om te beginnen.</p>
+    </NotAuthorized>
+</AuthorizeView>

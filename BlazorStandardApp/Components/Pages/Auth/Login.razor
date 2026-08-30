@@ -1,0 +1,141 @@
+@page "/login"
+@using BlazorStandardApp.Models.Commands.Users
+@inject ILoginService LoginService
+@inject IAccountService AccountService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>@(mode == "login" ? "Inloggen" : "Registreren")</PageTitle>
+
+<div class="auth-page">
+    <div class="auth-card">
+
+        <div class="auth-header">
+            <div class="auth-logo">BlazorStandardApp</div>
+            <div class="auth-tab-row" role="tablist">
+                <button class="auth-tab @(mode == "login" ? "active" : "")"
+                        role="tab"
+                        aria-selected="@(mode == "login")"
+                        @onclick="SwitchToLogin">
+                    Inloggen
+                </button>
+                <button class="auth-tab @(mode == "register" ? "active" : "")"
+                        role="tab"
+                        aria-selected="@(mode == "register")"
+                        @onclick="SwitchToRegister">
+                    Registreren
+                </button>
+            </div>
+        </div>
+
+        <div class="auth-body">
+
+            @if (!string.IsNullOrWhiteSpace(_errorMessage))
+            {
+                <div class="auth-alert auth-alert-error" role="alert">@_errorMessage</div>
+            }
+
+            @if (_success)
+            {
+                <div class="auth-alert auth-alert-success" role="status">
+                    Account aangemaakt! Je kunt nu inloggen.
+                </div>
+            }
+
+            @if (mode == "login")
+            {
+                <p class="auth-title">Welkom terug</p>
+                <p class="auth-subtitle">Log in met je account om verder te gaan.</p>
+
+                <div class="auth-field">
+                    <label class="auth-label" for="login-email">E-mailadres</label>
+                    <input id="login-email"
+                           class="auth-input"
+                           type="email"
+                           placeholder="jij@voorbeeld.nl"
+                           @bind="_loginCommand.Email"
+                           @bind:event="oninput"
+                           autocomplete="email" />
+                </div>
+
+                <div class="auth-field">
+                    <label class="auth-label" for="login-password">Wachtwoord</label>
+                    <input id="login-password"
+                           class="auth-input"
+                           type="password"
+                           placeholder="••••••••"
+                           @bind="_loginCommand.Password"
+                           @bind:event="oninput"
+                           autocomplete="current-password"
+                           @onkeydown="HandleLoginKeyDown" />
+                </div>
+
+                <button class="auth-btn" @onclick="HandleLogin" disabled="@_isLoading">
+                    @if (_isLoading)
+                    {
+                        <span class="auth-spinner"></span>
+                    }
+                    Inloggen
+                </button>
+
+                <p class="auth-footer-note">
+                    Nog geen account?
+                    <button class="auth-link-btn" @onclick="SwitchToRegister">Maak er één aan</button>
+                </p>
+            }
+            else
+            {
+                <p class="auth-title">Account aanmaken</p>
+                <p class="auth-subtitle">Maak een account om te beginnen.</p>
+
+                <div class="auth-field">
+                    <label class="auth-label" for="reg-username">Gebruikersnaam</label>
+                    <input id="reg-username"
+                           class="auth-input"
+                           type="text"
+                           placeholder="jouwnaam"
+                           @bind="_registerCommand.Username"
+                           @bind:event="oninput"
+                           autocomplete="username" />
+                </div>
+
+                <div class="auth-field">
+                    <label class="auth-label" for="reg-email">E-mailadres</label>
+                    <input id="reg-email"
+                           class="auth-input"
+                           type="email"
+                           placeholder="jij@voorbeeld.nl"
+                           @bind="_registerCommand.Email"
+                           @bind:event="oninput"
+                           autocomplete="email" />
+                </div>
+
+                <div class="auth-field">
+                    <label class="auth-label" for="reg-password">Wachtwoord</label>
+                    <input id="reg-password"
+                           class="auth-input"
+                           type="password"
+                           placeholder="Min. 8 tekens"
+                           @bind="_registerCommand.Password"
+                           @bind:event="oninput"
+                           autocomplete="new-password" />
+                </div>
+
+                <button class="auth-btn" @onclick="HandleRegister" disabled="@(_isLoading || _success)">
+                    @if (_isLoading)
+                    {
+                        <span class="auth-spinner"></span>
+                    }
+                    Account aanmaken
+                </button>
+
+                <p class="auth-footer-note">
+                    Al een account?
+                    <button class="auth-link-btn" @onclick="SwitchToLogin">Log in</button>
+                </p>
+            }
+
+        </div>
+    </div>
+</div>
